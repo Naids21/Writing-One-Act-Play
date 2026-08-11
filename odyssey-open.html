@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Odyssey of a One-Act Play</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Spectral:ital,wght@0,300;0,400;0,600;1,400&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --deep:#04131f;
+  --sea:#0a3550;
+  --sea2:#0d456a;
+  --foam:#7fd4d6;
+  --gold:#e3b23c;
+  --terra:#d9704a;
+  --marble:#f4ecdb;
+  --stone:#25313d;
+  --text:#eef4f6;
+  --dim:rgba(238,244,246,.62);
+  --faint:rgba(238,244,246,.34);
+  --line:rgba(160,220,230,.18);
+  --disp:"Cinzel",Georgia,serif;
+  --body:"Spectral",Georgia,serif;
+  --mono:"Courier Prime",ui-monospace,monospace;
+  --u:clamp(12.5px,1.62vh,16px);
+}
+*{ box-sizing:border-box; }
+html,body{ height:100%; overflow:hidden; }
+body{
+  margin:0; color:var(--text); font-family:var(--body);
+  background:
+    radial-gradient(85% 55% at 50% -8%, rgba(127,212,214,.13), transparent 62%),
+    radial-gradient(70% 45% at 50% 108%, rgba(13,69,106,.75), transparent 66%),
+    linear-gradient(180deg,#04131f 0%, #072a41 58%, #041a29 100%);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ─── ambient sea ─── */
+.waves{ position:fixed; left:0; right:0; bottom:0; height:22vh; z-index:0; pointer-events:none; opacity:.5; }
+.waves path{ fill:none; stroke:rgba(127,212,214,.22); stroke-width:1.2; }
+@keyframes drift{ to{ transform:translateX(-160px) } }
+.waves g{ animation:drift 22s linear infinite; }
+.waves g:nth-child(2){ animation-duration:34s; opacity:.6; }
+.waves g:nth-child(3){ animation-duration:48s; opacity:.4; }
+
+/* ─── slides ─── */
+.slide{ display:none; }
+.slide.on{
+  display:grid; place-items:center;
+  position:fixed; inset:0; z-index:5;
+  padding:64px clamp(14px,3.4vw,34px) 66px;
+}
+.inner{ width:min(1060px,94vw); max-height:100%; }
+.center{ text-align:center; }
+
+/* ─── chrome ─── */
+.rail{
+  position:fixed; z-index:20; top:0; left:0; right:0;
+  display:flex; gap:6px; align-items:center; justify-content:center;
+  padding:11px 10px;
+  background:linear-gradient(180deg, rgba(4,19,31,.94) 55%, transparent);
+}
+.rail button{
+  background:none; border:1px solid transparent; cursor:pointer;
+  width:30px; height:30px; border-radius:50%;
+  font-family:var(--disp); font-size:12px; font-weight:600; color:var(--faint);
+  transition:.2s;
+}
+.rail button:hover{ color:var(--gold); border-color:rgba(227,178,60,.5); }
+.rail button[aria-current="true"]{ color:#08202f; background:var(--gold); border-color:var(--gold); }
+.rail .map{ width:auto; padding:0 12px; border-radius:14px; letter-spacing:.16em; font-size:10px; }
+
+.bar{
+  position:fixed; z-index:20; left:0; right:0; bottom:0;
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:11px clamp(12px,3vw,28px);
+  background:linear-gradient(0deg, rgba(4,19,31,.95) 45%, transparent);
+}
+.bar button{
+  font-family:var(--disp); font-size:11px; font-weight:600; letter-spacing:.14em;
+  background:none; color:var(--dim); border:1px solid var(--line);
+  padding:9px 14px; border-radius:2px; cursor:pointer; transition:.2s;
+}
+.bar button:hover:not(:disabled){ color:var(--gold); border-color:var(--gold); }
+.bar button:disabled{ opacity:.2; cursor:default; }
+.bar .where{ flex:1; text-align:center; font-family:var(--disp); font-size:10px; letter-spacing:.2em; color:var(--faint); }
+
+/* ─── type ─── */
+.eyebrow{
+  font-family:var(--disp); font-size:calc(var(--u)*.74); font-weight:600;
+  letter-spacing:.36em; text-transform:uppercase; color:var(--gold); margin:0 0 calc(var(--u)*.9);
+}
+h1{ font-family:var(--disp); font-weight:800; font-size:clamp(26px,5.4vh,58px); line-height:1.04; margin:0; letter-spacing:.01em; }
+h2{ font-family:var(--disp); font-weight:600; font-size:clamp(20px,3.6vh,38px); line-height:1.08; margin:0 0 calc(var(--u)*.7); }
+p{ font-size:var(--u); line-height:1.62; color:var(--dim); margin:0 0 calc(var(--u)*.7); }
+p.lead{ font-size:calc(var(--u)*1.14); color:var(--text); }
+strong{ color:var(--gold); font-weight:600; }
+
+.card{
+  border:1px solid var(--line); border-radius:4px;
+  padding:calc(var(--u)*1.1) calc(var(--u)*1.2);
+  background:linear-gradient(165deg, rgba(127,212,214,.07), rgba(4,19,31,.42));
+  position:relative;
+}
+/* greek key top edge */
+.card::before{
+  content:""; position:absolute; left:0; right:0; top:0; height:5px;
+  background:repeating-linear-gradient(90deg,
+    var(--gold) 0 3px, transparent 3px 6px, var(--gold) 6px 7px, transparent 7px 14px);
+  opacity:.5; border-radius:4px 4px 0 0;
+}
+.two{ display:grid; gap:calc(var(--u)*1); grid-template-columns:1fr 1fr; align-items:start; }
+@media (max-width:780px){ .two{ grid-template-columns:1fr; } }
+
+.scroll-ok{ overflow:auto; }
+
+/* ─── paper ─── */
+.page{
+  background:var(--marble); color:var(--stone); border-radius:3px;
+  padding:calc(var(--u)*.9) calc(var(--u)*1);
+  font-family:var(--mono); font-size:calc(var(--u)*.86); line-height:1.72;
+  box-shadow:0 14px 40px rgba(0,0,0,.45);
+}
+.page .cue{ font-weight:700; }
+.page .dir{ font-style:italic; color:#5d6773; }
+.page .sh{ font-weight:700; }
+.lbl{
+  font-family:var(--disp); font-size:calc(var(--u)*.62); font-weight:600;
+  letter-spacing:.18em; text-transform:uppercase; color:#94764a;
+  display:block; margin-bottom:calc(var(--u)*.5);
+}
+
+/* ─── buttons ─── */
+.go{
+  font-family:var(--disp); font-size:calc(var(--u)*.8); font-weight:600; letter-spacing:.12em;
+  border:0; border-radius:2px; padding:calc(var(--u)*.62) calc(var(--u)*1.1); cursor:pointer;
+  background:linear-gradient(180deg,var(--gold),#b98a25); color:#0b1c14; transition:.2s;
+}
+.go:hover{ filter:brightness(1.08); }
+.ghost{
+  font-family:var(--disp); font-size:calc(var(--u)*.76); font-weight:600; letter-spacing:.1em;
+  border:1px solid var(--line); background:none; color:var(--dim);
+  border-radius:2px; padding:calc(var(--u)*.56) calc(var(--u)*.95); cursor:pointer; transition:.2s;
+}
+.ghost:hover{ color:var(--gold); border-color:var(--gold); }
+:is(button,[tabindex]):focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+
+/* ─── map ─── */
+.island{ cursor:pointer; }
+.island:hover .isle{ fill:var(--terra); }
+.island:hover text{ fill:#fff; }
+.isle{ transition:.25s; }
+@keyframes bob{ 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-4px) } }
+#hull{ animation:bob 3.2s ease-in-out infinite; }
+#ship{ transition:transform .8s cubic-bezier(.4,0,.2,1); }
+
+/* ─── premise checker ─── */
+.q{ margin-bottom:calc(var(--u)*.7); }
+.q > span{ display:block; font-size:calc(var(--u)*.86); color:var(--dim); margin-bottom:calc(var(--u)*.35); }
+.opts{ display:flex; gap:6px; flex-wrap:wrap; }
+.opts button{
+  font-family:var(--body); font-size:calc(var(--u)*.86); padding:calc(var(--u)*.42) calc(var(--u)*.8);
+  border-radius:2px; cursor:pointer; border:1px solid var(--line);
+  background:rgba(127,212,214,.05); color:var(--dim); transition:.2s;
+}
+.opts button:hover{ border-color:var(--foam); color:var(--text); }
+.opts button[aria-pressed="true"]{ background:rgba(127,212,214,.2); border-color:var(--foam); color:#fff; }
+.verdict{ font-size:calc(var(--u)*.9); line-height:1.55; min-height:5.4em; padding:calc(var(--u)*.7); border-radius:3px; border:1px solid transparent; }
+.verdict.ok{ background:rgba(127,212,214,.12); border-color:rgba(127,212,214,.4); }
+.verdict.no{ background:rgba(217,112,74,.14); border-color:rgba(217,112,74,.45); }
+
+/* ─── revising ─── */
+.ln{ display:block; padding:2px 6px; margin:0 -6px; border-radius:2px; cursor:pointer; transition:.16s; }
+.ln[data-bad]:hover{ background:rgba(217,112,74,.18); }
+.ln.found{ background:rgba(217,112,74,.15); text-decoration:line-through; text-decoration-color:var(--terra); text-decoration-thickness:2px; color:#8b95a0; }
+.panel{
+  min-height:6.4em; border-left:3px solid var(--terra); padding:calc(var(--u)*.65) calc(var(--u)*.8);
+  background:rgba(217,112,74,.1); border-radius:0 3px 3px 0; font-size:calc(var(--u)*.88); line-height:1.55;
+}
+.panel b{ display:block; font-family:var(--disp); font-size:calc(var(--u)*.68); letter-spacing:.14em;
+  text-transform:uppercase; color:#f0b49a; margin-bottom:.35em; }
+
+/* ─── error hunt ─── */
+.err{ cursor:pointer; border-bottom:2px dotted rgba(37,49,61,.3); border-radius:2px; padding:0 1px; transition:.15s; }
+.err:hover{ background:rgba(227,178,60,.4); }
+.err.got{ background:rgba(217,112,74,.24); border-bottom:2px solid var(--terra); color:#8f3418; font-weight:700; }
+@keyframes nope{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+.shake{ animation:nope .3s; }
+.tally{ font-family:var(--disp); font-size:calc(var(--u)*1.7); font-weight:800; color:var(--gold); }
+
+/* ─── hotspots ─── */
+.hot{ position:relative; }
+.spot{
+  position:absolute; width:23px; height:23px; border-radius:50%; cursor:pointer; padding:0;
+  border:2px solid var(--terra); background:rgba(244,236,219,.94); color:var(--terra);
+  font-family:var(--disp); font-weight:700; font-size:11px; line-height:19px; transition:.2s;
+}
+.spot:hover,.spot[aria-pressed="true"]{ background:var(--terra); color:#fff; transform:scale(1.16); }
+
+.check{ display:grid; gap:calc(var(--u)*.34); }
+.check label{ display:flex; gap:9px; align-items:flex-start; font-size:calc(var(--u)*.88); color:var(--dim); cursor:pointer; line-height:1.45; }
+.check input{ margin-top:3px; accent-color:var(--gold); flex:none; width:15px; height:15px; }
+.check input:checked + span{ color:var(--text); }
+
+/* ─── sign-in gate ─── */
+.field{ margin-bottom:calc(var(--u)*.75); }
+.field label{ display:block; font-family:var(--disp); font-size:calc(var(--u)*.68);
+  letter-spacing:.18em; text-transform:uppercase; color:var(--gold); margin-bottom:calc(var(--u)*.3); }
+.field input, .field select{
+  width:100%; padding:calc(var(--u)*.6) calc(var(--u)*.7);
+  background:rgba(4,19,31,.6); color:var(--text); font-family:var(--body);
+  font-size:calc(var(--u)*.95); border:1px solid var(--line); border-radius:2px;
+}
+.field input:focus, .field select:focus{ outline:none; border-color:var(--gold); }
+.field small{ display:block; margin-top:calc(var(--u)*.25); font-size:calc(var(--u)*.72); color:var(--faint); }
+.field.bad input{ border-color:var(--terra); }
+.who{ font-family:var(--disp); font-size:calc(var(--u)*.7); letter-spacing:.1em; color:var(--faint); }
+
+/* ─── quiz ─── */
+.qwrap{ min-height:calc(var(--u)*15); }
+.qtext{ font-size:calc(var(--u)*1.12); line-height:1.5; color:var(--text); margin-bottom:calc(var(--u)*.9); }
+.qopts{ display:grid; gap:calc(var(--u)*.4); }
+.qopts button{
+  text-align:left; font-family:var(--body); font-size:calc(var(--u)*.95);
+  padding:calc(var(--u)*.55) calc(var(--u)*.8); border-radius:2px; cursor:pointer;
+  border:1px solid var(--line); background:rgba(127,212,214,.04); color:var(--dim); transition:.18s;
+}
+.qopts button:hover{ border-color:var(--foam); color:var(--text); }
+.dots{ display:flex; gap:5px; justify-content:center; margin-top:calc(var(--u)*.9); }
+.dots i{ width:7px; height:7px; border-radius:50%; background:rgba(238,244,246,.2); }
+.dots i.done{ background:var(--gold); }
+.dots i.now{ background:var(--foam); transform:scale(1.4); }
+.big-score{ font-family:var(--disp); font-weight:800; font-size:clamp(40px,9vh,84px); color:var(--gold); line-height:1; }
+.sub{ font-size:calc(var(--u)*.9); color:var(--dim); }
+.miss{ font-size:calc(var(--u)*.84); line-height:1.5; color:var(--dim); }
+.miss b{ color:#f0b49a; }
+
+@media (max-width:820px){
+  .rail button{ width:26px; height:26px; font-size:11px; }
+  .rail .map{ display:none; }
+}
+@media (prefers-reduced-motion:reduce){ *{ animation:none !important; } }
+</style>
+</head>
+<body>
+
+<svg class="waves" viewBox="0 0 1200 200" preserveAspectRatio="none" aria-hidden="true">
+  <g><path d="M0 120 q80 -20 160 0 t160 0 t160 0 t160 0 t160 0 t160 0 t160 0"/></g>
+  <g><path d="M0 150 q80 -18 160 0 t160 0 t160 0 t160 0 t160 0 t160 0 t160 0"/></g>
+  <g><path d="M0 178 q80 -16 160 0 t160 0 t160 0 t160 0 t160 0 t160 0 t160 0"/></g>
+</svg>
+
+<nav class="rail" id="rail" aria-label="Ports"></nav>
+
+<!-- 0 · TITLE -->
+<section class="slide on">
+  <div class="inner center">
+    <p class="eyebrow">Grade 9 · English</p>
+    <h1>The Odyssey<br>of a One-Act Play</h1>
+    <p class="lead" style="max-width:46ch;margin:calc(var(--u)*1.3) auto 0">
+      No play sails straight from an idea to a stage. It puts in at five ports,
+      and at each one the crew has exactly one job.
+    </p>
+    <p style="margin-top:calc(var(--u)*1.4);font-size:calc(var(--u)*.82);color:var(--faint)">
+      Nothing here scrolls. Move with the arrows, the numbers, or a swipe.
+    </p>
+  </div>
+</section>
+
+<!-- 1 · MAP -->
+<section class="slide">
+  <div class="inner center">
+    <p class="eyebrow">The chart</p>
+    <h2>Five ports, in order</h2>
+    <svg viewBox="0 0 960 330" style="width:100%;height:auto;max-height:56vh" role="img" aria-label="Map of the five ports">
+      <defs><radialGradient id="glow"><stop offset="0" stop-color="#7fd4d6" stop-opacity=".5"/><stop offset="1" stop-color="#7fd4d6" stop-opacity="0"/></radialGradient></defs>
+      <path d="M60 265 Q160 150 260 225 Q360 300 470 215 Q570 130 660 200 Q750 270 800 175 Q860 100 910 145"
+            fill="none" stroke="rgba(227,178,60,.5)" stroke-width="2" stroke-dasharray="7 8"/>
+      <g id="ports"></g>
+      <g id="ship" transform="translate(60,265)">
+        <g id="hull">
+          <circle r="26" fill="url(#glow)"/>
+          <path d="M-13 4 h26 l-5 8 h-16z" fill="#e3b23c"/>
+          <path d="M0 4 V-14 l12 8z" fill="#f4ecdb"/>
+          <path d="M0 -14 v-4" stroke="#e3b23c" stroke-width="2"/>
+        </g>
+      </g>
+    </svg>
+    <p style="margin-top:calc(var(--u)*.8);font-size:calc(var(--u)*.86)">Tap a port to sail there.</p>
+  </div>
+</section>
+
+<!-- 2 · PORT I intro -->
+<section class="slide">
+  <div class="inner">
+    <p class="eyebrow center">Port the First</p>
+    <h2 class="center">Prewriting</h2>
+    <p class="lead center" style="max-width:56ch;margin:0 auto calc(var(--u)*1.1)">
+      Deciding what the play will be — <strong>before a single line is written.</strong>
+      Skip this port and every later one costs you double.
+    </p>
+    <div class="card">
+      <svg viewBox="0 0 640 168" style="width:100%;height:auto;max-height:34vh" role="img" aria-label="The four limits of a one-act play">
+        <rect x="10" y="10" width="620" height="148" rx="4" fill="none" stroke="#e3b23c" stroke-width="2"/>
+        <line x1="320" y1="10" x2="320" y2="158" stroke="rgba(227,178,60,.3)"/>
+        <line x1="10" y1="84" x2="630" y2="84" stroke="rgba(227,178,60,.3)"/>
+        <g font-family="Cinzel,serif" fill="#eef4f6">
+          <text x="38" y="46" font-size="15" font-weight="600">ONE PLACE</text>
+          <text x="352" y="46" font-size="15" font-weight="600">ONE STRETCH OF TIME</text>
+          <text x="38" y="122" font-size="15" font-weight="600">TWO TO FOUR PEOPLE</text>
+          <text x="352" y="122" font-size="15" font-weight="600">TEN TO THIRTY MINUTES</text>
+        </g>
+        <g font-family="Spectral,serif" font-size="12.5" fill="rgba(238,244,246,.6)">
+          <text x="38" y="66">No jeepney, then hospital, then jeepney.</text>
+          <text x="352" y="66">No “ten years later.”</text>
+          <text x="38" y="142">Enough for a fight. Few enough to matter.</text>
+          <text x="352" y="142">One sitting. No interval.</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 3 · PORT I checker -->
+<section class="slide">
+  <div class="inner">
+    <p class="eyebrow center">Port the First · try it</p>
+    <h2 class="center">Will this voyage float?</h2>
+    <div class="card two">
+      <div>
+        <div class="q"><span>How many characters?</span><div class="opts" data-k="chars">
+          <button data-v="1">One</button><button data-v="3">Two to four</button><button data-v="9">Eight or more</button></div></div>
+        <div class="q"><span>How many places?</span><div class="opts" data-k="places">
+          <button data-v="1">One</button><button data-v="3">Three or more</button></div></div>
+        <div class="q" style="margin-bottom:0"><span>Does somebody want something they cannot easily get?</span><div class="opts" data-k="conflict">
+          <button data-v="1">Yes</button><button data-v="0">No — things just happen</button></div></div>
+      </div>
+      <div class="verdict" id="verdict"><span style="color:var(--faint);font-size:calc(var(--u)*.86)">Choose one from each row and the chart will tell you whether you can sail.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 · PORT II -->
+<section class="slide">
+  <div class="inner">
+    <p class="eyebrow center">Port the Second</p>
+    <h2 class="center">Drafting</h2>
+    <p class="center" style="max-width:60ch;margin:0 auto calc(var(--u)*.9)">
+      Get it down in script form. <strong>Rough is fine.</strong> Every minute spent fixing
+      spelling here may be thrown overboard at the next port.</p>
+    <div class="card">
+      <div class="page" id="draftBox" style="max-height:40vh;overflow:auto"></div>
+      <div style="display:flex;gap:8px;margin-top:calc(var(--u)*.7);flex-wrap:wrap">
+        <button class="go" id="flip">Show it as a script</button>
+        <button class="ghost" id="labels" style="display:none">Label the parts</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · PORT III -->
+<section class="slide">
+  <div class="inner">
+    <p class="eyebrow center">Port the Third</p>
+    <h2 class="center">Revising — cut what does not sail</h2>
+    <div class="card two">
+      <div>
+        <div class="page" id="revBox" style="max-height:44vh;overflow:auto"></div>
+      </div>
+      <div>
+        <p style="font-size:calc(var(--u)*.88)">Six lines are wrong. Tap one. <em style="color:var(--faint)">Ignore the spelling — that is the next port.</em></p>
+        <div class="panel" id="revPanel"><b>Waiting</b>Tap a line you think should be cut or changed.</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:calc(var(--u)*.7);flex-wrap:wrap">
+          <span style="font-size:calc(var(--u)*.86);color:var(--dim)">Found <span class="tally" id="revN">0</span> of 6</span>
+          <button class="ghost" id="revAll">Show all six</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · PORT IV -->
+<section class="slide">
+  <div class="inner">
+    <p class="eyebrow center">Port the Fourth</p>
+    <h2 class="center">Editing — ten sirens in the text</h2>
+    <div class="card two">
+      <div><div class="page" id="huntBox" style="max-height:44vh;overflow:auto"></div></div>
+      <div>
+        <p style="font-size:calc(var(--u)*.88)">Now, and only now, the mechanics. Tap each error.
+          <em style="color:var(--faint)">One of them is the reason grandpa gets eaten.</em></p>
+        <div class="panel" id="huntPanel"><b>Waiting</b>Tap something that looks wrong.</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:calc(var(--u)*.7);flex-wrap:wrap">
+          <span style="font-size:calc(var(--u)*.86);color:var(--dim)">Found <span class="tally" id="huntN">0</span> of 10</span>
+          <button class="ghost" id="huntAll">Show them all</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 · PORT V -->
+<section class="slide">
+  <div class="inner">
+    <p class="eyebrow center">Port the Fifth</p>
+    <h2 class="center">Publishing — fit for another crew</h2>
+    <div class="card two">
+      <div class="hot">
+        <div class="page" id="finalPage" style="max-height:44vh;overflow:auto"></div>
+        <button class="spot" style="left:-10px;top:30px" data-h="0">1</button>
+        <button class="spot" style="left:-10px;top:78px" data-h="1">2</button>
+        <button class="spot" style="left:-10px;top:126px" data-h="2">3</button>
+        <button class="spot" style="left:-10px;top:174px" data-h="3">4</button>
+        <button class="spot" style="left:-10px;bottom:14px" data-h="4">5</button>
+      </div>
+      <div>
+        <p style="font-size:calc(var(--u)*.88)">A published script is one a stranger could pick up and
+          stage without asking you anything. Tap the red numbers.</p>
+        <div class="panel" id="hotOut"><b>Waiting</b>Each number marks a part every finished script must have.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 · HOME -->
+<section class="slide">
+  <div class="inner">
+    <p class="eyebrow center">Home port</p>
+    <h2 class="center">Before you hand yours in</h2>
+    <div class="card two">
+      <div class="check" id="check"></div>
+      <div>
+        <div class="panel" id="doneMsg" style="border-left-color:var(--gold);background:rgba(227,178,60,.1)">
+          <b>The crossing</b>Prewriting, drafting, revising, editing, publishing. In that order —
+          there is no sense fixing the spelling of a line you are about to throw overboard.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<nav class="bar">
+  <button type="button" id="prev">← Back</button>
+  <span class="where" id="where"></span>
+  <button type="button" id="next">Onward →</button>
+</nav>
+
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+const slides = [...document.querySelectorAll('.slide')];
+const NAMES = ['Setting out','The chart','Prewriting','Prewriting \u00b7 try it','Drafting','Revising','Editing','Publishing','Home port'];
+const PORT_OF = [null,null,1,1,2,3,4,5,null];
+
+/* ── ports on the chart ── */
+const PORTS = [
+  { n:1, x:260, y:225, label:'Prewriting',  to:2 },
+  { n:2, x:470, y:215, label:'Drafting',    to:4 },
+  { n:3, x:660, y:200, label:'Revising',    to:5 },
+  { n:4, x:800, y:175, label:'Editing',     to:6 },
+  { n:5, x:910, y:145, label:'Publishing',  to:7 }
+];
+$('ports').innerHTML = PORTS.map(p => `
+  <g class="island" data-to="${p.to}" tabindex="0" role="button" aria-label="${p.label}">
+    <circle class="isle" cx="${p.x}" cy="${p.y}" r="17" fill="#0d456a" stroke="#e3b23c" stroke-width="2"/>
+    <text x="${p.x}" y="${p.y + 5}" text-anchor="middle" font-family="Cinzel,serif" font-size="14"
+          font-weight="700" fill="#e3b23c">${p.n}</text>
+    <text x="${p.x}" y="${p.y + 38}" text-anchor="${p.n === 5 ? 'end' : 'middle'}"
+          font-family="Cinzel,serif" font-size="12.5"
+          letter-spacing="1.5" fill="rgba(238,244,246,.75)">${p.label.toUpperCase()}</text>
+  </g>`).join('');
+document.querySelectorAll('.island').forEach(g => {
+  const jump = () => go(+g.dataset.to);
+  g.addEventListener('click', jump);
+  g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); jump(); } });
+});
+
+/* ── rail ── */
+const rail = $('rail');
+const mapBtn = document.createElement('button');
+mapBtn.type = 'button'; mapBtn.className = 'map'; mapBtn.textContent = 'CHART';
+mapBtn.addEventListener('click', () => go(1));
+rail.appendChild(mapBtn);
+PORTS.forEach(p => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.textContent = p.n; b.setAttribute('aria-label', p.label);
+  b.addEventListener('click', () => go(p.to));
+  rail.appendChild(b);
+});
+const marks = [...rail.children].slice(1);
+
+let at = 0;
+function go(i){
+  if (i < 0 || i >= slides.length) return;
+  slides.forEach((s, k) => s.classList.toggle('on', k === i));
+  const port = PORT_OF[i];
+  marks.forEach((m, k) => m.setAttribute('aria-current', String(PORTS[k].n === port)));
+  $('where').textContent = NAMES[i] + '  ·  ' + (i + 1) + ' / ' + slides.length;
+  $('prev').disabled = i === 0;
+  $('next').disabled = i === slides.length - 1;
+  // sail the ship to the port we are visiting
+  const p = PORTS.find(x => x.n === port);
+  const ship = $('ship');
+  if (ship) ship.setAttribute('transform', 'translate(' + (p ? p.x : 60) + ',' + (p ? p.y : 265) + ')');
+  at = i;
+}
+$('prev').addEventListener('click', () => go(at - 1));
+$('next').addEventListener('click', () => go(at + 1));
+addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') go(at + 1);
+  if (e.key === 'ArrowLeft') go(at - 1);
+});
+let sx = 0, sy = 0, tr = false;
+addEventListener('pointerdown', e => {
+  if (e.pointerType === 'mouse' || e.target.closest('button,.ln,.err,label,.island')) return;
+  sx = e.clientX; sy = e.clientY; tr = true;
+}, { passive:true });
+addEventListener('pointerup', e => {
+  if (!tr) return; tr = false;
+  const dx = e.clientX - sx, dy = e.clientY - sy;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.6) go(at + (dx < 0 ? 1 : -1));
+}, { passive:true });
+
+/* ── premise checker ── */
+const pick = { chars:null, places:null, conflict:null };
+document.querySelectorAll('.opts').forEach(row => row.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  [...row.children].forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  pick[row.dataset.k] = +b.dataset.v;
+  judge();
+}));
+function judge(){
+  if (pick.chars === null || pick.places === null || pick.conflict === null) return;
+  const bad = [];
+  if (pick.chars === 1) bad.push('One character leaves nobody to want something <em>from</em>.');
+  if (pick.chars === 9) bad.push('Eight or more in twenty minutes means nobody gets more than a line.');
+  if (pick.places === 3) bad.push('Three settings means three sets and an audience relearning where they are.');
+  if (!pick.conflict) bad.push('With nobody wanting anything, you have a list of events, not a play.');
+  const v = $('verdict');
+  v.className = 'verdict ' + (bad.length ? 'no' : 'ok');
+  v.innerHTML = bad.length
+    ? '<b style="font-family:var(--disp);letter-spacing:.1em;display:block;margin-bottom:.4em;color:#f0b49a">ROUGH WATER</b>' +
+      bad.map(b => '• ' + b).join('<br>')
+    : '<b style="font-family:var(--disp);letter-spacing:.1em;display:block;margin-bottom:.4em;color:var(--foam)">FAIR WINDS</b>' +
+      'Two to four people, one place, and something somebody wants. That is the shape of a one-act. Now: what do they want, and who is in the way?';
+}
+
+/* ── drafting flip ── */
+const STORY = '<span class="lbl">As a story</span><div style="font-family:var(--body);font-size:calc(var(--u)*.95);line-height:1.65">' +
+  'Mira came home early. Her mother was cooking. Mira told her she had failed the exam. Her mother was upset ' +
+  'and asked how, because Mira went out every night to review. Mira admitted she had not been reviewing at all.</div>';
+const TAGS = { heading:'SCENE HEADING — where and when', direction:'STAGE DIRECTION — something you can see', cue:'CHARACTER NAME — before every speech' };
+const L = (lab, kind, html) => (!lab || !kind) ? '<div>' + html + '</div>' :
+  '<div style="border-left:3px solid #d9704a;padding-left:8px;margin:2px 0 2px -11px">' + html +
+  '<span style="display:block;font-family:Cinzel,serif;font-size:9.5px;letter-spacing:.12em;color:#a8532f;margin-top:1px">' + TAGS[kind] + '</span></div>';
+const SCRIPT = lab => '<span class="lbl">As a script</span>' +
+  L(lab,'heading','<span class="sh">SCENE 1. A kitchen in Bangkal. Early morning.</span>') + '<br>' +
+  L(lab,'direction','<span class="dir">(MOTHER is at the stove. MIRA stops in the doorway.)</span>') + '<br>' +
+  L(lab,'cue','<span class="cue">MIRA:</span> Ma.') +
+  L(lab,'','<span class="cue">MOTHER:</span> You are early. There is rice.') +
+  L(lab,'','<span class="cue">MIRA:</span> I failed the exam.') + '<br>' +
+  L(lab,'direction','<span class="dir">(MOTHER keeps stirring. She does not turn.)</span>') + '<br>' +
+  L(lab,'','<span class="cue">MOTHER:</span> You went out every night.') +
+  L(lab,'','<span class="cue">MIRA:</span> …Not to review.');
+let asScript = false, lab = false;
+$('draftBox').innerHTML = STORY;
+$('flip').addEventListener('click', () => {
+  asScript = !asScript; lab = false;
+  $('draftBox').innerHTML = asScript ? SCRIPT(false) : STORY;
+  $('flip').textContent = asScript ? 'Show it as a story' : 'Show it as a script';
+  $('labels').style.display = asScript ? 'inline-block' : 'none';
+  $('labels').textContent = 'Label the parts';
+});
+$('labels').addEventListener('click', () => {
+  lab = !lab; $('draftBox').innerHTML = SCRIPT(lab);
+  $('labels').textContent = lab ? 'Hide the labels' : 'Label the parts';
+});
+
+/* ── revising ── */
+const REV = [
+  ['<span class="sh">SCENE 1. A kitchen in Bangkal.</span>'],
+  ['<span class="cue">MIRA:</span> <span class="dir">(She feels sad inside.)</span> Ma, I need to tell you something.',
+   'A feeling, not an action','No actor can perform “sad inside,” and no audience can see it. Give her something to do: <em>(She grips the chair.)</em>'],
+  ['<span class="cue">MOTHER:</span> You didn’t pass? But you studied every night!'],
+  ['<span class="cue">MIRA:</span> As you know Ma, I have gone to the library every night for three months.',
+   'Telling the audience, not the mother','“As you know…” is the writer feeding facts through a character. Mother knows this already. Cut it.'],
+  ['<span class="dir">(Mother is angry.)</span>',
+   'The same mistake twice','Anger is what the audience concludes. Your job is the thing that makes them conclude it: <em>(She sets the pan down hard.)</em>'],
+  ['<span class="cue">KUYA JUN:</span> <span class="dir">(enters)</span> Hi. <span class="dir">(exits)</span>',
+   'A passenger, not a crew member','He arrives, says one word, leaves. In fifteen minutes, anyone who does not touch the problem is stealing time. Cut him.'],
+  ['Mira sat down, thinking about all the times she had lied to her mother.',
+   'Narration — thoughts are invisible','Story writing that wandered into a script. Nobody in the theatre hears thinking. Show it or cut it.'],
+  ['<span class="cue">MOTHER:</span> It’s okay, anak. Let’s eat.',
+   'The storm ends before it starts','Forgiveness one line after the confession. No struggle, no play. Make her resist first.']
+];
+let revN = 0;
+$('revBox').innerHTML = '<span class="lbl">Group 5 — draft three</span>' +
+  REV.map((r, i) => '<span class="ln"' + (r.length > 1 ? ' data-bad="' + i + '" tabindex="0" role="button"' : '') + '>' + r[0] + '</span>').join('');
+function revShow(el, auto){
+  const r = REV[+el.dataset.bad];
+  $('revPanel').innerHTML = '<b>' + r[1] + '</b>' + r[2];
+  if (el.classList.contains('found')) return;
+  el.classList.add('found');
+  $('revN').textContent = ++revN;
+}
+$('revBox').addEventListener('click', e => {
+  const el = e.target.closest('.ln'); if (!el) return;
+  if (!el.dataset.bad){ el.classList.add('shake'); setTimeout(() => el.classList.remove('shake'), 320); return; }
+  revShow(el);
+});
+$('revBox').addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const el = e.target.closest('.ln[data-bad]'); if (!el) return;
+  e.preventDefault(); revShow(el);
+});
+$('revAll').addEventListener('click', () => document.querySelectorAll('#revBox .ln[data-bad]').forEach(el => revShow(el, true)));
+
+/* ── editing ── */
+const HUNT = [
+  ['Its','It’s — “it is.” “Its” means belonging to it.'],
+  ['didnt','didn’t — the apostrophe replaces the missing “o” in not.'],
+  ['study','studied — the sentence looks back at finished action.'],
+  ['As you know Ma,','As you know, Ma, — a comma before the name you address.'],
+  ['definately','definitely — de-fin-ite-ly. There is no “a” in it.'],
+  ['Its okay anak.','It’s okay, anak. — apostrophe, and a comma before the name.'],
+  ['Lets eat Mira.','Let’s eat, Mira. — without that comma, Mira is the meal. The grandpa error.'],
+  ['Their’s','There’s — “there is.” “Their’s” is not a word at all.'],
+  ['alot','a lot — always two words.'],
+  ['dont','don’t — apostrophe again.']
+];
+const E = i => '<span class="err" data-i="' + i + '" tabindex="0" role="button">' + esc(HUNT[i][0]) + '</span>';
+$('huntBox').innerHTML = '<span class="lbl">Group 5 — draft four</span>' +
+  '<div>' + E(0) + ' 6:00 in the morning. A kitchen in Bangkal.</div>' +
+  '<div><span class="cue">MIRA:</span> I ' + E(1) + ' pass the exam.</div>' +
+  '<div><span class="cue">MOTHER:</span> But you ' + E(2) + ' every night!</div>' +
+  '<div><span class="cue">MIRA:</span> ' + E(3) + ' I was at the library.</div>' +
+  '<div>It was ' + E(4) + ' the worst morning of her life.</div>' +
+  '<div><span class="cue">MOTHER:</span> ' + E(5) + ' ' + E(6) + '</div>' +
+  '<div><span class="cue">MIRA:</span> ' + E(7) + ' ' + E(8) + ' of things I still need to explain, but I ' + E(9) + ' know how.</div>';
+let huntN = 0;
+function huntShow(el, auto){
+  const i = +el.dataset.i;
+  $('huntPanel').innerHTML = '<b>' + esc(HUNT[i][0]) + '</b>' + HUNT[i][1];
+  if (el.classList.contains('got')) return;
+  el.classList.add('got');
+  $('huntN').textContent = ++huntN;
+  if (huntN === HUNT.length)
+    $('huntPanel').innerHTML = '<b style="color:var(--gold)">All ten</b>Notice that not one of those changed what the play is about. That is the difference between editing and revising.';
+}
+$('huntBox').addEventListener('click', e => {
+  const el = e.target.closest('.err');
+  if (el) return huntShow(el);
+  const b = $('huntBox'); b.classList.add('shake'); setTimeout(() => b.classList.remove('shake'), 320);
+});
+$('huntBox').addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const el = e.target.closest('.err'); if (!el) return;
+  e.preventDefault(); huntShow(el);
+});
+$('huntAll').addEventListener('click', () => document.querySelectorAll('#huntBox .err').forEach(el => huntShow(el, true)));
+
+/* ── publishing ── */
+$('finalPage').innerHTML =
+  '<div style="text-align:center"><span style="font-weight:700">THE LONGEST MORNING</span>' +
+  '<div style="font-size:.9em">a one-act play by Group 5</div></div><br>' +
+  '<div><span style="font-weight:700">CHARACTERS</span><br>MIRA, seventeen.<br>NANAY ELSA, her mother.</div><br>' +
+  '<div class="sh">SCENE 1. A kitchen in Bangkal. Early morning.</div><br>' +
+  '<div class="dir">(NANAY ELSA is at the stove. MIRA stops in the doorway.)</div><br>' +
+  '<div><span class="cue">MIRA:</span> Ma.</div>' +
+  '<div><span class="cue">NANAY ELSA:</span> You are early. There is rice.</div>' +
+  '<div><span class="cue">MIRA:</span> I failed the exam.</div><br>' +
+  '<div style="text-align:center;font-weight:700;letter-spacing:.1em">CURTAIN.</div>';
+const HOT = [
+  ['Title block','The title and who wrote it. A script gets handed around — it must say what it is with nobody there to explain.'],
+  ['Cast list','Every character with one line on who they are. A director casts from this before reading a word of dialogue.'],
+  ['Scene heading','Where, then when. The first thing a stage crew reads. Without it nobody knows what to build.'],
+  ['Stage direction','What the audience sees, in the present tense, always performable. Note what it never says: how anyone feels.'],
+  ['CURTAIN','How a script ends. Not “(End)”, not “The End” — those belong to stories. This one belongs to the theatre.']
+];
+document.querySelectorAll('.spot').forEach(s => s.addEventListener('click', () => {
+  document.querySelectorAll('.spot').forEach(x => x.setAttribute('aria-pressed', String(x === s)));
+  const h = HOT[+s.dataset.h];
+  $('hotOut').innerHTML = '<b>' + h[0] + '</b>' + h[1];
+}));
+
+/* ── checklist ── */
+const CHECKS = ['One place. One stretch of time.','Two to four characters, spelled the same way every time.',
+  'A scene heading: where, and when.','A character name before every speech.',
+  'Stage directions you can see or hear.','No narration anywhere.',
+  'Read aloud once — every apostrophe, every comma before a name.','CURTAIN at the end.'];
+$('check').innerHTML = CHECKS.map(c => '<label><input type="checkbox"><span>' + c + '</span></label>').join('');
+$('check').addEventListener('change', () => {
+  const all = [...document.querySelectorAll('#check input')].every(i => i.checked);
+  if (all) $('doneMsg').innerHTML = '<b style="color:var(--gold)">Land</b>That is a script another crew could sail. Go and write one.';
+});
+
+go(0);
+})();
+</script>
+</body>
+</html>
